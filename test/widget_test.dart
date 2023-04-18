@@ -1,30 +1,106 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
+import 'package:pontos_turisticos/model/ponto_turistico.dart';
 
-import 'package:gerenciador_tarefas_md/main.dart';
+class PontoTuristicoCadastro extends StatefulWidget {
+  final PontoTuristico? pontoTuristico;
 
-void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const AppGerenciadorTarefas());
+  const PontoTuristicoCadastro({super.key, this.pontoTuristico});
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  @override
+  PontoTuristicoCadastroState createState() => PontoTuristicoCadastroState();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+}
+
+class PontoTuristicoCadastroState extends State<PontoTuristicoCadastro> {
+  final formKey = GlobalKey<FormState>();
+  final nomeController = TextEditingController();
+  final diferenciaisController = TextEditingController();
+  final detalhesController = TextEditingController();
+  final inclusaoController = TextEditingController();
+  final _dateFormat = DateFormat("dd/MM/yyy");
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.pontoTuristico != null) {
+      nomeController.text = widget.pontoTuristico!.nome;
+      diferenciaisController.text = widget.pontoTuristico!.diferenciais;
+      inclusaoController.text = widget.pontoTuristico!.inclusaoFormatada;
+      detalhesController.text = widget.pontoTuristico!.detalhes;
+    } else {
+      inclusaoController.text = _dateFormat.format(DateTime.now());
+    }
+  }
+
+  _mostrarCalendario() {
+    final dataFormatada = inclusaoController.text;
+    var data = DateTime.now();
+    if (dataFormatada.isNotEmpty) {
+      data = _dateFormat.parse(dataFormatada);
+    }
+    showDatePicker(context: context,
+        initialDate: data,
+        firstDate: data.subtract(Duration(days: 365 * 5)),
+        lastDate: data.add(Duration(days: 365 * 5))
+    ).then((DateTime? dataSelecionada) {
+      if (dataSelecionada != null) {
+        inclusaoController.text = _dateFormat.format(dataSelecionada);
+      }
+    });
+  }
+
+  bool dadosValidados() => formKey.currentState?.validate() == true;
+
+  PontoTuristico get novo => PontoTuristico(
+      id: widget.pontoTuristico?.id ?? 0,
+      nome: nomeController.text,
+      diferenciais: diferenciaisController.text,
+      detalhes: detalhesController.text,
+      inclusao: inclusaoController.text.isEmpty ?
+      null : _dateFormat.parse(inclusaoController.text)
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(key: formKey, child: SingleChildScrollView(child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextFormField(controller: nomeController,
+          decoration: const InputDecoration(labelText: "Descrição"),
+          validator: (String? valor) {
+            if (valor == null || valor.isEmpty) {
+              return "Informe o nome!";
+            }
+            return null;
+          },
+        ),
+        TextFormField(controller: detalhesController,
+          decoration: const InputDecoration(labelText: "Detalhes"),
+          validator: (String? valor) {
+            if (valor == null || valor.isEmpty) {
+              return "Informe os detalhes!";
+            }
+            return null;
+          },
+        ),
+        TextFormField(controller: diferenciaisController,
+          decoration: const InputDecoration(labelText: "Diferenciais"),
+          validator: (String? valor) {
+            if (valor == null || valor.isEmpty) {
+              return "Informe os diferenciais!";
+            }
+            return null;
+          },
+        ),
+        TextFormField(controller: inclusaoController,
+          decoration: InputDecoration(labelText: "Inclusão" ),
+          readOnly: true,
+        )
+      ],
+    )) );
+  }
 }

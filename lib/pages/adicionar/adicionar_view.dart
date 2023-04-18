@@ -24,7 +24,7 @@ class _AdicionarState extends State<AdicionarView>
   final descricaoController = TextEditingController();
 
   // lista de tipo para ser utilizado nos chips
-  List tipos = ['Deserto', 'Praia', 'Montanha'];
+  List tipos = ['Verão', 'Primavera', 'Inverno ou outono'];
   // inicia com o tipo zero que é o deserto
   int tipo = 0;
 
@@ -93,7 +93,7 @@ class _AdicionarState extends State<AdicionarView>
                 Text(
                   widget.arguments['model'] != null
                       ? "Atualizar ponto turístico"
-                      : "Novo ponto turístico",
+                      : "Ponto turístico em clima de:",
                   style: const TextStyle(
                     color: Colors.black87,
                     fontSize: 22,
